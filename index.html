@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>YuCash</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#3D2BFF">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F3F1FA;--card:#fff;--ink:#14112B;--mute:#6C688A;--pri:#3D2BFF;--mint:#2FD3A0;--soft:#E7E4FF;--line:#DCD8F2;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0F0D22;--card:#1A1738;--ink:#F1EFFF;--mute:#9C98C4;--soft:#27235A;--line:#2E2A5E}}
+:root[data-theme="dark"]{--bg:#0F0D22;--card:#1A1738;--ink:#F1EFFF;--mute:#9C98C4;--soft:#27235A;--line:#2E2A5E}
+*{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{height:100%;background:var(--bg);color:var(--ink);font-family:Manrope,system-ui,sans-serif;overflow:hidden}
+#app{height:100%;display:flex;flex-direction:column}
+header{padding:14px 20px 4px;display:flex;justify-content:space-between;align-items:center}
+.logo{font-family:Unbounded,system-ui,sans-serif;font-weight:700;font-size:20px}.logo b{color:var(--pri)}
+.badge{font-size:12px;font-weight:700;padding:5px 10px;border-radius:99px;background:var(--soft);color:var(--pri)}
+.badge.pro{background:var(--mint);color:#06281D}
+#pager{flex:1;display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior-x:contain}
+#pager::-webkit-scrollbar{display:none}
+section{flex:0 0 100%;scroll-snap-align:start;overflow-y:auto;padding:12px 20px 24px}
+h2{font-family:Unbounded,system-ui,sans-serif;font-weight:500;font-size:22px;margin-bottom:14px}
+.card{background:var(--card);border-radius:20px;padding:16px;margin-bottom:12px;border:1px solid var(--line)}
+.mute{color:var(--mute);font-size:14px}
+/* main */
+.ringwrap{display:grid;place-items:center;margin:8px 0 14px;position:relative}
+.ringwrap svg{width:min(78vw,300px);height:auto}
+.ringnum{position:absolute;text-align:center}
+.ringnum .n{font-family:Unbounded,sans-serif;font-size:56px;font-weight:700;line-height:1}
+.chips{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:16px}
+.chip{border:1.5px solid var(--line);background:var(--card);color:var(--ink);padding:9px 14px;border-radius:99px;font:600 14px Manrope,sans-serif}
+.chip.on{background:var(--pri);border-color:var(--pri);color:#fff}
+.tap{display:block;margin:0 auto;width:100%;max-width:320px;padding:20px;border:0;border-radius:22px;background:var(--pri);color:#fff;font:700 20px Unbounded,sans-serif;box-shadow:0 8px 0 #2217B8;transition:transform .08s,box-shadow .08s}
+.tap:active{transform:translateY(6px);box-shadow:0 2px 0 #2217B8}
+.undo{display:block;margin:22px auto 0;background:none;border:0;color:var(--mute);font:600 14px Manrope,sans-serif;text-decoration:underline}
+/* dashboard */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px}
+.stat .v{font-family:Unbounded,sans-serif;font-size:22px;font-weight:700}
+.bars{display:flex;align-items:flex-end;gap:8px;height:150px;margin-top:10px}
+.bar{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:6px;height:100%}
+.bar i{width:100%;background:var(--soft);border-radius:8px 8px 4px 4px;min-height:4px}
+.bar.today i{background:var(--pri)}
+.bar span{font-size:12px;color:var(--mute)}
+.cat{margin:10px 0}.cat .row{display:flex;justify-content:space-between;font-weight:600;font-size:14px;margin-bottom:5px}
+.track{height:10px;background:var(--soft);border-radius:9px;overflow:hidden}.track i{display:block;height:100%;background:var(--mint)}
+/* history */
+.item{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
+.item:last-child{border:0}.item b{display:block}
+.del{background:none;border:0;color:var(--mute);font-size:20px;padding:4px 10px}
+/* plans */
+.plan{position:relative}.plan.best{border:2px solid var(--pri)}
+.plan .price{font-family:Unbounded,sans-serif;font-size:24px;font-weight:700;margin:6px 0}
+.plan ul{padding-left:18px;margin:8px 0 14px;font-size:14px;line-height:1.7}
+.buy{width:100%;padding:14px;border-radius:14px;border:0;background:var(--pri);color:#fff;font:700 15px Manrope,sans-serif}
+.buy.alt{background:var(--soft);color:var(--pri)}.buy:disabled{opacity:.6}
+.tag{position:absolute;right:14px;top:-11px;background:var(--mint);color:#06281D;font-size:12px;font-weight:700;padding:4px 10px;border-radius:99px}
+/* settings */
+.goalrow{display:flex;align-items:center;justify-content:space-between}
+.step{display:flex;align-items:center;gap:14px}
+.step button{width:40px;height:40px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);font-size:20px;font-weight:700}
+.step b{font-family:Unbounded,sans-serif;font-size:20px;min-width:40px;text-align:center}
+.danger{width:100%;padding:14px;border-radius:14px;border:1.5px solid #E5484D;background:none;color:#E5484D;font:700 15px Manrope,sans-serif}
+/* nav */
+nav{display:flex;justify-content:space-around;padding:8px 10px 12px;border-top:1px solid var(--line);background:var(--card)}
+nav button{flex:1;background:none;border:0;color:var(--mute);font:600 11px Manrope,sans-serif;display:flex;flex-direction:column;align-items:center;gap:6px;padding:4px 0}
+nav button i{width:8px;height:8px;border-radius:9px;background:var(--line);transition:width .2s,background .2s}
+nav button.on{color:var(--pri)}nav button.on i{width:24px;background:var(--pri)}
+#toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:14px;font-weight:600;opacity:0;pointer-events:none;transition:.25s}
+#toast.show{opacity:1;transform:translateX(-50%)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+:focus-visible{outline:3px solid var(--mint);outline-offset:2px}
+</style>
+</head>
+<body>
+<div id="app">
+  <header><div class="logo">Yu<b>Cash</b></div><div class="badge" id="badge">Bepul</div></header>
+  <div id="pager">
+    <section id="s0">
+      <h2>Bugun</h2>
+      <div class="ringwrap">
+        <svg viewBox="0 0 200 200"><circle cx="100" cy="100" r="86" fill="none" stroke="var(--soft)" stroke-width="16"/><circle id="ring" cx="100" cy="100" r="86" fill="none" stroke="var(--pri)" stroke-width="16" stroke-linecap="round" stroke-dasharray="540.4" stroke-dashoffset="540.4" transform="rotate(-90 100 100)" style="transition:stroke-dashoffset .35s"/></svg>
+        <div class="ringnum"><div class="n" id="todayN">0</div><div class="mute" id="goalTxt">maqsad: 20</div></div>
+      </div>
+      <div class="chips" id="chips"></div>
+      <button class="tap" id="tap">+1 harakat</button>
+      <button class="undo" id="undo">Oxirgisini bekor qilish</button>
+    </section>
+    <section id="s1">
+      <h2>Dashboard</h2>
+      <div class="stats">
+        <div class="stat"><div class="v" id="stT">0</div><div class="mute">Bugun</div></div>
+        <div class="stat"><div class="v" id="stW">0</div><div class="mute">7 kun</div></div>
+        <div class="stat"><div class="v" id="stA">0</div><div class="mute">Jami</div></div>
+      </div>
+      <div class="card"><b>So'nggi 7 kun</b><div class="bars" id="bars"></div></div>
+      <div class="card"><b>Turlar bo'yicha</b><div id="cats"></div></div>
+    </section>
+    <section id="s2">
+      <h2>Tarix</h2>
+      <div class="card" id="hist"></div>
+    </section>
+    <section id="s3">
+      <h2>Obuna</h2>
+      <div class="card plan"><b>Bepul</b><div class="price">0 so'm</div>
+        <ul><li>Cheksiz hisoblash</li><li>3 ta tur</li><li>7 kunlik dashboard</li></ul>
+        <button class="buy alt" id="freeBtn" disabled>Joriy reja</button></div>
+      <div class="card plan best"><span class="tag">Tejamli</span><b>Pro, yillik</b><div class="price">149 000 so'm<span class="mute"> / yil</span></div>
+        <ul><li>Cheksiz turlar</li><li>30 kunlik dashboard</li><li>Hisobotni yuklab olish</li></ul>
+        <button class="buy" data-plan="Pro yillik">Yillikni sotib olish</button></div>
+      <div class="card plan"><b>Pro, oylik</b><div class="price">19 000 so'm<span class="mute"> / oy</span></div>
+        <ul><li>Pro'ning barcha imkoniyatlari</li><li>Istalgan vaqt bekor qilish</li></ul>
+        <button class="buy" data-plan="Pro oylik">Oylikni sotib olish</button></div>
+      <p class="mute">Bu demo: haqiqiy to'lov ulanmagan.</p>
+    </section>
+    <section id="s4">
+      <h2>Sozlamalar</h2>
+      <div class="card goalrow"><div><b>Kunlik maqsad</b><div class="mute">Bir kunda nechta harakat</div></div>
+        <div class="step"><button id="gm" aria-label="Kamaytirish">−</button><b id="gv">20</b><button id="gp" aria-label="Ko'paytirish">+</button></div></div>
+      <div class="card goalrow"><div><b>Mavzu</b><div class="mute">Yorug' yoki qorong'i</div></div>
+        <button class="chip" id="theme">Almashtirish</button></div>
+      <button class="danger" id="reset">Barcha ma'lumotni o'chirish</button>
+    </section>
+  </div>
+  <nav id="nav"></nav>
+</div>
+<div id="toast"></div>
+<script>
+const NAMES=["Asosiy","Dashboard","Tarix","Obuna","Sozlamalar"];
+const CATS=["Yurish","Mashq","Ish"];
+let S={goal:20,plan:"Bepul",cat:"Yurish",log:[]};
+try{const x=localStorage.getItem("yucash");if(x)S=Object.assign(S,JSON.parse(x))}catch(e){}
+const $=id=>document.getElementById(id);
+const save=()=>{try{localStorage.setItem("yucash",JSON.stringify(S))}catch(e){}};
+const day=t=>new Date(t).toDateString();
+function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");clearTimeout(toast.h);toast.h=setTimeout(()=>t.classList.remove("show"),1800)}
+const pager=$("pager"),nav=$("nav");
+NAMES.forEach((n,i)=>{const b=document.createElement("button");b.innerHTML="<i></i>"+n;b.onclick=()=>pager.scrollTo({left:i*pager.clientWidth,behavior:"smooth"});nav.appendChild(b)});
+pager.addEventListener("scroll",()=>{const i=Math.round(pager.scrollLeft/pager.clientWidth);[...nav.children].forEach((b,j)=>b.classList.toggle("on",i===j))});
+function render(){
+  const now=Date.now(),td=S.log.filter(l=>day(l.t)===day(now)).length;
+  $("todayN").textContent=td;$("goalTxt").textContent="maqsad: "+S.goal;
+  $("ring").style.strokeDashoffset=540.4*(1-Math.min(td/S.goal,1));
+  $("gv").textContent=S.goal;
+  const pro=S.plan!=="Bepul";$("badge").textContent=pro?"Pro":"Bepul";$("badge").className="badge"+(pro?" pro":"");
+  $("freeBtn").textContent=pro?"Bepul reja":"Joriy reja";
+  document.querySelectorAll("[data-plan]").forEach(b=>{const cur=S.plan===b.dataset.plan;b.disabled=cur;b.textContent=cur?"Joriy reja":(b.dataset.plan.includes("yillik")?"Yillikni sotib olish":"Oylikni sotib olish")});
+  const cats=pro?[...CATS,"Boshqa","O'qish"]:CATS;
+  $("chips").innerHTML=cats.map(c=>`<button class="chip ${c===S.cat?"on":""}" data-c="${c}">${c}</button>`).join("");
+  // dashboard
+  const days=[...Array(7)].map((_,i)=>{const d=new Date(now-(6-i)*864e5);return{d,n:S.log.filter(l=>day(l.t)===d.toDateString()).length}});
+  const mx=Math.max(1,...days.map(x=>x.n)),wk=days.reduce((a,x)=>a+x.n,0);
+  $("stT").textContent=td;$("stW").textContent=wk;$("stA").textContent=S.log.length;
+  const wd=["Ya","Du","Se","Ch","Pa","Ju","Sh"];
+  $("bars").innerHTML=days.map((x,i)=>`<div class="bar ${i===6?"today":""}"><i style="height:${Math.max(3,x.n/mx*100)}%"></i><span>${wd[x.d.getDay()]}</span></div>`).join("");
+  const by={};S.log.forEach(l=>by[l.c]=(by[l.c]||0)+1);
+  const tot=S.log.length||1,keys=Object.keys(by);
+  $("cats").innerHTML=keys.length?keys.sort((a,b)=>by[b]-by[a]).map(k=>`<div class="cat"><div class="row"><span>${k}</span><span>${by[k]}</span></div><div class="track"><i style="width:${by[k]/tot*100}%"></i></div></div>`).join(""):'<p class="mute" style="margin-top:8px">Hali harakat yo\'q. Asosiy oynada +1 bosing.</p>';
+  // history
+  const rec=[...S.log].reverse().slice(0,60);
+  $("hist").innerHTML=rec.length?rec.map(l=>{const d=new Date(l.t);return`<div class="item"><div><b>${l.c}</b><span class="mute">${d.toLocaleDateString("uz")} ${d.toLocaleTimeString("uz",{hour:"2-digit",minute:"2-digit"})}</span></div><button class="del" data-t="${l.t}" aria-label="O'chirish">×</button></div>`}).join(""):'<p class="mute">Tarix bo\'sh. Birinchi harakatni qo\'shing.</p>';
+  save();
+}
+$("tap").onclick=()=>{S.log.push({t:Date.now(),c:S.cat});render();if(navigator.vibrate)navigator.vibrate(15);const td=S.log.filter(l=>day(l.t)===day(Date.now())).length;if(td===S.goal)toast("Kunlik maqsadga yetdingiz!")};
+$("undo").onclick=()=>{if(S.log.length){S.log.pop();render();toast("Bekor qilindi")}else toast("Bekor qilinadigan harakat yo'q")};
+$("chips").onclick=e=>{const c=e.target.dataset.c;if(c){S.cat=c;render()}};
+$("hist").onclick=e=>{const t=e.target.dataset.t;if(t){S.log=S.log.filter(l=>String(l.t)!==t);render();toast("O'chirildi")}};
+document.querySelectorAll("[data-plan]").forEach(b=>b.onclick=()=>{S.plan=b.dataset.plan;render();toast(S.plan+" faollashtirildi")});
+$("gm").onclick=()=>{S.goal=Math.max(1,S.goal-5);render()};
+$("gp").onclick=()=>{S.goal+=5;render()};
+$("theme").onclick=()=>{const r=document.documentElement,d=r.dataset.theme==="dark"||(!r.dataset.theme&&matchMedia("(prefers-color-scheme:dark)").matches);r.dataset.theme=d?"light":"dark"};
+$("reset").onclick=()=>{if(confirm("Barcha harakatlar o'chiriladi. Davom etasizmi?")){S.log=[];render();toast("Ma'lumotlar o'chirildi")}};
+render();nav.children[0].classList.add("on");
+if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+</script>
+</body>
+</html>
